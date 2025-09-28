@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(python3 -m pip:*)",
+      "Read(//mnt/c/Users/LucasRodriguezGoñi/OneDrive/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

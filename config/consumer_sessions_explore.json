@@ -1,0 +1,562 @@
+{
+  "explore": "consumer_sessions",
+  "model": "bg",
+  "description": "This explore relies solely on Google Analytics 4 data, performance metrics in this explore will not match Traffic Cube prior to June 2024. This dataset is refreshed every day at 8:45 AM (EST) and contains data from 2023-10-01 onwards",
+  "defaults": {
+    "always_filter": [
+      {
+        "name": "consumer_sessions.visit_day_date",
+        "value": "last month"
+      }
+    ]
+  },
+  "filters": [
+    {
+      "field_name": "consumer_sessions.bounced_flag",
+      "label": "Bounced Flag (Yes / No)",
+      "type": "yesno",
+      "looker_type": "yesno",
+      "allowed_values": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.brand_viewed_first",
+      "label": "Brand Viewed First",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.brand_viewed_last",
+      "label": "Brand Viewed Last",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.brand_viewed_second",
+      "label": "Brand Viewed Second",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.brand_viewed_third",
+      "label": "Brand Viewed Third",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.last_touch_channel_spend_type",
+      "label": "Channel Spend Type",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.party_id_viewed_first",
+      "label": "Dealer ID Viewed First",
+      "type": "number",
+      "looker_type": "number",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.party_id_viewed_last",
+      "label": "Dealer ID Viewed Last",
+      "type": "number",
+      "looker_type": "number",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.party_id_viewed_second",
+      "label": "Dealer ID Viewed Second",
+      "type": "number",
+      "looker_type": "number",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.party_id_viewed_third",
+      "label": "Dealer ID Viewed Third",
+      "type": "number",
+      "looker_type": "number",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.party_name_viewed_first",
+      "label": "Dealer Viewed First",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.party_name_viewed_last",
+      "label": "Dealer Viewed Last",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.party_name_viewed_second",
+      "label": "Dealer Viewed Second",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.party_name_viewed_third",
+      "label": "Dealer Viewed Third",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.device_browser",
+      "label": "Device Browser",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.device_category",
+      "label": "Device Category",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.device_experience",
+      "label": "Device Experience",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.device_id",
+      "label": "Device ID",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.device_operating_system",
+      "label": "Device Operating System",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.date",
+      "label": "Dynamic Visit Date",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+
+    {
+      "field_name": "consumer_sessions.renewal_order_date",
+      "label": "Renewal Order Date",
+      "type": "date",
+      "looker_type": "date",
+      "allowed_values": [
+        "YYYY-MM-DD"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_date",
+      "label": "Visit Day Date",
+      "type": "date",
+      "looker_type": "date_date",
+      "allowed_values": [
+        "YYYY-MM-DD"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_week",
+      "label": "Visit Day Week",
+      "type": "date",
+      "looker_type": "date_week",
+      "allowed_values": [
+        "YYYY-Www"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_week_of_year",
+      "label": "Visit Day Week of Year",
+      "type": "date",
+      "looker_type": "date_week_of_year",
+      "allowed_values": [
+        "1..53"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_month",
+      "label": "Visit Day Month",
+      "type": "date",
+      "looker_type": "date_month",
+      "allowed_values": [
+        "YYYY-MM"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_month_num",
+      "label": "Visit Day Month Num",
+      "type": "date",
+      "looker_type": "date_month_num",
+      "allowed_values": [
+        "1..12"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_month_name",
+      "label": "Visit Day Month Name",
+      "type": "date",
+      "looker_type": "date_month_name",
+      "allowed_values": [
+        "January..December"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_quarter",
+      "label": "Visit Day Quarter",
+      "type": "date",
+      "looker_type": "date_quarter",
+      "allowed_values": [
+        "YYYY-Qq"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_quarter_of_year",
+      "label": "Visit Day Quarter of Year",
+      "type": "date",
+      "looker_type": "date_quarter_of_year",
+      "allowed_values": [
+        "Q1..Q4"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_year",
+      "label": "Visit Day Year",
+      "type": "date",
+      "looker_type": "date_year",
+      "allowed_values": [
+        "YYYY"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_day_of_week",
+      "label": "Visit Day - Day of Week",
+      "type": "date",
+      "looker_type": "date_day_of_week",
+      "allowed_values": [
+        "Monday..Sunday"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_day_of_week_index",
+      "label": "Visit Day - Day of Week Index",
+      "type": "date",
+      "looker_type": "date_day_of_week_index",
+      "allowed_values": [
+        "0..6"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_day_of_month",
+      "label": "Visit Day - Day of Month",
+      "type": "date",
+      "looker_type": "date_day_of_month",
+      "allowed_values": [
+        "1..31"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.visit_day_day_of_year",
+      "label": "Visit Day - Day of Year",
+      "type": "date",
+      "looker_type": "date_day_of_year",
+      "allowed_values": [
+        "1..366"
+      ]
+    },
+
+    {
+      "field_name": "consumer_sessions.user_location_city",
+      "label": "User Location City",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.user_location_country",
+      "label": "User Location Country",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.user_location_region",
+      "label": "User Location State/Province",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+
+    {
+      "field_name": "consumer_sessions.visit_id",
+      "label": "Visit ID",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.visit_id_pk",
+      "label": "Visit ID (PK)",
+      "type": "number",
+      "looker_type": "number",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.visit_duration",
+      "label": "Visit Duration (sec)",
+      "type": "number",
+      "looker_type": "number",
+      "allowed_values": null
+    },
+
+    {
+      "field_name": "consumer_sessions.is_unknown_visit",
+      "label": "Is Unknown Visit",
+      "type": "yesno",
+      "looker_type": "yesno",
+      "allowed_values": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "field_name": "consumer_sessions.is_active",
+      "label": "Is Active User",
+      "type": "yesno",
+      "looker_type": "yesno",
+      "allowed_values": [
+        "Yes",
+        "No"
+      ]
+    },
+
+    {
+      "field_name": "consumer_sessions.last_touch_channel",
+      "label": "Last Touch Channel",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.last_touch_campaign",
+      "label": "Last Touch Campaign",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.last_touch_source",
+      "label": "Last Touch Source",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.last_touch_non_direct_30d_channel",
+      "label": "Last Touch Non-direct (30d) Channel",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+
+    {
+      "field_name": "consumer_sessions.landing_page_name",
+      "label": "Landing Page Name",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.page_referrer",
+      "label": "Page Referrer",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.landing_page_url",
+      "label": "Landing Page URL",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.second_page_url",
+      "label": "Second Page URL",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+
+    {
+      "field_name": "consumer_sessions.gtm_gclid",
+      "label": "GCLID",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.gtm_fbclid",
+      "label": "FBCLID",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.gtm_ttclid",
+      "label": "TTCLID",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.gtm_msclkid",
+      "label": "MSCLKID",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.gtm_gbraid",
+      "label": "GBRAID",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.gtm_wbraid",
+      "label": "WBRAID",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+
+    {
+      "field_name": "consumer_sessions.portal",
+      "label": "Portal",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.portal_locale",
+      "label": "Portal Locale",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+    {
+      "field_name": "consumer_sessions.portal_is_na",
+      "label": "Portal Is NA",
+      "type": "yesno",
+      "looker_type": "yesno",
+      "allowed_values": [
+        "Yes",
+        "No"
+      ]
+    },
+
+    {
+      "field_name": "consumer_sessions.devices",
+      "label": "Devices (Category)",
+      "type": "string",
+      "looker_type": "string",
+      "allowed_values": null
+    },
+
+
+    {
+      "field_name": "consumer_sessions.date_granularity",
+      "label": "Date Granularity",
+      "type": "parameter",
+      "looker_type": "parameter",
+      "allowed_values": [
+        "date",
+        "day^_of^_week",
+        "day^_of^_month",
+        "day^_of^_year",
+        "week",
+        "week^_of^_year",
+        "month",
+        "month^_name",
+        "quarter",
+        "quarter^_of^_year",
+        "year"
+      ]
+    }
+  ],
+
+  "measures": [
+    {
+      "field_name": "consumer_sessions.sessions",
+      "label": "Sessions",
+      "type": "count",
+      "looker_type": "count_distinct",
+      "description": "Count of unique sessions"
+    }
+  ],
+
+  "tool_schema": {
+    "name": "run_looker_query",
+    "description": "Builds and runs a Looker inline query against the consumer_sessions explore.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "model": { "type": "string", "enum": ["bg"] },
+        "explore": { "type": "string", "enum": ["consumer_sessions"] },
+        "fields": {
+          "type": "array",
+          "items": { "type": "string", "description": "Fully-qualified field names to select" }
+        },
+        "filters": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Map of field name -> Looker filter expression"
+        },
+        "sorts": {
+          "type": "array",
+          "items": { "type": "string", "description": "Field name optionally suffixed with ' desc' or ' asc'" }
+        },
+        "limit": { "type": "integer", "minimum": 1, "maximum": 5000 },
+        "pivots": { "type": "array", "items": { "type": "string" } },
+        "query_timezone": { "type": "string" },
+        "dynamic_fields": { "type": "array", "items": { "type": "string" }, "description": "Table calcs JSON strings" },
+        "fill_fields": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["model", "explore", "fields"]
+    },
+    "examples": [
+      {
+        "user_ask": "sessions last 7 days by device category in the US",
+        "arguments": {
+          "model": "bg",
+          "explore": "consumer_sessions",
+          "fields": ["consumer_sessions.device_category", "consumer_sessions.sessions"],
+          "filters": {
+            "consumer_sessions.visit_day_date": "7 days",
+            "consumer_sessions.user_location_country": "US"
+          },
+          "sorts": ["consumer_sessions.sessions desc"],
+          "limit": 500
+        }
+      }
+    ]
+  }
+}

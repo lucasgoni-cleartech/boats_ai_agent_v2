@@ -1,0 +1,106 @@
+{
+  "recipes": [
+    {
+      "name": "revenue_by_country",
+      "description": "Show revenue broken down by country",
+      "triggers": ["revenue by country", "sales by country", "country revenue"],
+      "query_template": {
+        "dimensions": ["country"],
+        "measures": ["revenue"],
+        "sorts": ["revenue desc"],
+        "limit": 10
+      },
+      "parameters": {
+        "required": [],
+        "optional": ["limit", "date_filter"]
+      }
+    },
+    {
+      "name": "revenue_trend",
+      "description": "Show revenue trending over time",
+      "triggers": ["revenue trend", "revenue over time", "sales trend"],
+      "query_template": {
+        "dimensions": ["date"],
+        "measures": ["revenue"],
+        "sorts": ["date"],
+        "limit": 100
+      },
+      "parameters": {
+        "required": [],
+        "optional": ["date_range", "granularity"]
+      }
+    },
+    {
+      "name": "top_products",
+      "description": "Show top performing products by revenue",
+      "triggers": ["top products", "best products", "highest revenue products"],
+      "query_template": {
+        "dimensions": ["product_category"],
+        "measures": ["revenue"],
+        "sorts": ["revenue desc"],
+        "limit": 10
+      },
+      "parameters": {
+        "required": [],
+        "optional": ["limit", "category_filter"]
+      }
+    },
+    {
+      "name": "customer_segment_analysis",
+      "description": "Analyze metrics by customer segment",
+      "triggers": ["by segment", "customer segment", "segment analysis"],
+      "query_template": {
+        "dimensions": ["customer_segment"],
+        "measures": ["revenue", "customer_count"],
+        "sorts": ["revenue desc"],
+        "limit": 10
+      },
+      "parameters": {
+        "required": [],
+        "optional": ["measure", "limit"]
+      }
+    },
+    {
+      "name": "order_volume_analysis",
+      "description": "Analyze order volumes and patterns",
+      "triggers": ["order count", "order volume", "number of orders"],
+      "query_template": {
+        "dimensions": ["date"],
+        "measures": ["order_count"],
+        "sorts": ["date"],
+        "limit": 50
+      },
+      "parameters": {
+        "required": [],
+        "optional": ["dimension", "date_range", "limit"]
+      }
+    }
+  ],
+  "parameter_mappings": {
+    "time_periods": {
+      "last month": {"date_filter": "last 30 days"},
+      "this year": {"date_filter": "year to date"},
+      "last year": {"date_filter": "previous year"},
+      "last quarter": {"date_filter": "last 90 days"}
+    },
+    "dimensions": {
+      "country": "country",
+      "region": "country", 
+      "product": "product_category",
+      "category": "product_category",
+      "segment": "customer_segment",
+      "customer": "customer_segment",
+      "time": "date",
+      "date": "date"
+    },
+    "measures": {
+      "revenue": "revenue",
+      "sales": "revenue",
+      "income": "revenue",
+      "orders": "order_count",
+      "transactions": "order_count",
+      "customers": "customer_count",
+      "users": "customer_count"
+    }
+  }
+}

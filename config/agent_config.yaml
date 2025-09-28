@@ -1,0 +1,82 @@
+# Conversational Agent Configuration
+# MVP configuration for Looker integration
+
+agent:
+  name: "Looker Conversational Agent"
+  description: "AI agent for natural language queries to Looker data"
+  version: "1.0.0-mvp"
+  
+# Looker configuration (UPDATED for real API)
+looker:
+  base_url: "${LOOKER_BASE_URL}"  # e.g. https://your-instance.looker.com:443/api/4.0
+
+  # Authentication (REQUIRED - use environment variables)
+  client_id: "${LOOKER_CLIENT_ID}"
+  client_secret: "${LOOKER_CLIENT_SECRET}"
+
+  # Query settings
+  default_limit: 500
+  query_timezone: "${LOOKER_QUERY_TIMEZONE}"
+
+  # Target Explore for MVP
+  explore:
+    model: "bg"
+    explore: "consumer_sessions"
+    description: "Google Analytics 4 consumer sessions data"
+    schema_file: "config/consumer_sessions_explore.json"
+
+# DSPy configuration  
+dspy:
+  model: "gpt-4o-mini"  # More economical model for testing
+  temperature: 0.1
+  max_tokens: 1000
+  
+# Memory configuration
+memory:
+  type: "in_memory"  # Options: in_memory, file_based, mcp
+  max_history_turns: 10
+  
+# Query processing
+query_processing:
+  max_query_length: 500
+  timeout_seconds: 30
+  
+  # Query recipes - predefined patterns for common queries
+  recipes:
+    - name: "revenue_by_dimension"
+      description: "Show revenue broken down by a dimension"
+      pattern: "revenue by {dimension}"
+      parameters:
+        - dimension
+        - limit (optional, default: 10)
+        
+    - name: "trend_analysis"
+      description: "Show trending data over time"
+      pattern: "trend of {measure} over time"
+      parameters:
+        - measure
+        - date_range (optional)
+        
+    - name: "top_performers"
+      description: "Show top performing items by a measure"
+      pattern: "top {limit} {dimension} by {measure}"
+      parameters:
+        - dimension
+        - measure
+        - limit (optional, default: 10)
+
+# Response configuration
+response:
+  include_data_summary: true
+  suggest_follow_ups: true
+  max_suggestions: 3
+  
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+# Development settings
+development:
+  mock_looker_api: false  # CHANGED: Use real Looker API
+  debug_queries: true     # Log query building process

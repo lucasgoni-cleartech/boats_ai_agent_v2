@@ -1,0 +1,22 @@
+# Core dependencies for Conversational Looker Agent
+dspy-ai>=2.4.0
+pyyaml>=6.0
+openai>=1.40.0
+
+# Slack integration
+slack-bolt>=1.18.0
+aiohttp>=3.8.0
+
+# For Looker API integration - REAL API
+httpx>=0.27.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Logging and utilities
+python-dotenv>=1.0.0
+pydantic-settings>=2.1.0
+
+# Optional: for enhanced CLI experience
+rich>=13.0.0
