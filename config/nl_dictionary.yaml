@@ -1,0 +1,56 @@
+# NL Dictionary for Consumer Sessions Explore
+# Model: bg / consumer_sessions
+# Timezone: America/New_York
+# English-only synonyms
+
+dimensions:
+  day: consumer_sessions.visit_day_date
+  week: consumer_sessions.visit_day_week
+  month: consumer_sessions.visit_day_month
+  quarter: consumer_sessions.visit_day_quarter
+  year: consumer_sessions.visit_day_year
+  country: consumer_sessions.user_location_country
+  region: consumer_sessions.user_location_region
+  device: consumer_sessions.device_category
+  browser: consumer_sessions.device_browser
+  portal: consumer_sessions.portal
+
+dimension_synonyms:
+  country: ["country", "nation", "country code", "market country"]
+  region: ["region", "state", "province", "area"]
+  device: ["device", "device category", "platform", "desktop", "mobile", "tablet"]
+  browser: ["browser", "user agent", "ua"]
+  portal: ["portal", "site", "client", "brand", "property"]
+
+metrics:
+  sessions:
+    field: consumer_sessions.sessions
+    synonyms: ["sessions", "visits", "site visits", "user sessions", "web sessions"]
+
+  active_users:
+    field: consumer_sessions.active_users
+    synonyms: ["active users", "unique users", "distinct users", "users active", "unique visitors"]
+
+  pageviews:
+    field: consumer_sessions.bdp_pageviews
+    synonyms: ["pageviews", "views", "bdp pageviews", "detail pageviews", "boat detail pageviews"]
+
+  pageviews_new:
+    field: consumer_sessions.bdp_pageviews_new
+    synonyms: ["new pageviews", "new bdp views", "bdp views new", "new listings views"]
+
+  pageviews_used:
+    field: consumer_sessions.bdp_pageviews_used
+    synonyms: ["used pageviews", "used bdp views", "bdp views used", "used listings views"]
+
+  avg_session_duration_min:
+    field: consumer_sessions.avg_visit_duration_min
+    synonyms: ["avg duration", "average session duration", "avg session time", "visit duration minutes", "session duration min"]
+
+  email_leads_clean:
+    field: consumer_sessions.email_leads_excluding_all_spam
+    synonyms: ["clean leads", "leads excluding spam", "valid leads", "non-spam leads", "email leads clean"]
+
+  email_leads:
+    field: consumer_sessions.email_leads_delivered
+    synonyms: ["email leads", "leads", "total leads", "lead count", "leads delivered"]

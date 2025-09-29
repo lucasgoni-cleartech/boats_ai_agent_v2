@@ -13,9 +13,11 @@ from typing import Any, Dict, List, Optional
 import dspy
 
 from ..signatures.triage import TriageSignature
-from ..signatures.query_curator import QueryCuratorSignature  
+from ..signatures.query_curator import QueryCuratorSignature
 from ..signatures.response_synthesizer import ResponseSynthesizerSignature
 from ..signatures.insight_extractor import InsightExtractionSignature
+from ..mapper.llm_mapper import NL2LookerModule
+from ..mapper.validator_module import ValidatorModule
 from ...memory.conversation_memory import ConversationMemory
 from ...looker.service import LookerService
 from ...looker.schema_loader import explore_schema_loader
@@ -54,6 +56,8 @@ class ConversationalAgent:
         
         # Initialize Looker schema (async, so done separately)
         self.schema: Optional[Dict[str, Any]] = None
+        self.schema_json: Optional[str] = None
+        self.nl_dictionary: Optional[str] = None
         
         logger.info("ConversationalAgent initialized")
 
@@ -114,6 +118,10 @@ class ConversationalAgent:
         self.response_synthesizer = dspy.ChainOfThought(ResponseSynthesizerSignature)
         self.insight_extractor = dspy.ChainOfThought(InsightExtractionSignature)
 
+        # Initialize new NL→Looker mapper pipeline
+        self.nl_mapper = NL2LookerModule()
+        self.query_validator = ValidatorModule()
+
     async def initialize_looker_schema(self) -> None:
         """Initialize Looker schema from JSON file."""
         try:
@@ -123,7 +131,18 @@ class ConversationalAgent:
             if self.schema:
                 self.query_builder = LookerQueryBuilder(self.schema)
                 self.deterministic_query_builder = DeterministicQueryBuilder(self.schema)
-                logger.info("Looker schema loaded successfully from JSON", extra={
+
+                # Load schema as JSON string for new mapper pipeline
+                schema_path = Path(__file__).parent.parent.parent.parent / "config" / "consumer_sessions_explore.json"
+                with open(schema_path, 'r') as f:
+                    self.schema_json = f.read()
+
+                # Load NL dictionary
+                dict_path = Path(__file__).parent.parent.parent.parent / "config" / "nl_dictionary.yaml"
+                with open(dict_path, 'r') as f:
+                    self.nl_dictionary = f.read()
+
+                logger.info("Looker schema and NL dictionary loaded successfully", extra={
                     "model": self.schema.get("model"),
                     "explore": self.schema.get("explore"),
                     "filters_count": len(self.schema.get("filters", [])),
@@ -135,7 +154,7 @@ class ConversationalAgent:
         except Exception as e:
             logger.error(f"Failed to initialize Looker schema: {e}")
 
-    async def process_query(self, user_query: str, session_id: str = "default") -> Dict[str, Any]:
+    async def process_query(self, user_query: str, session_id: str = "default", today_iso: str = None) -> Dict[str, Any]:
         """Process a user query and return response."""
         try:
             logger.info(f"Processing query: {user_query}")
@@ -147,7 +166,7 @@ class ConversationalAgent:
             
             # Step 2: Route based on intent
             if intent == "GATHER_DATA_FROM_LOOKER":
-                response = await self._handle_data_query(user_query, intent_result)
+                response = await self._handle_data_query(user_query, intent_result, today_iso)
             elif intent == "GET_EXECUTIVE_SUMMARY":
                 response = await self._handle_executive_summary(user_query)
             elif intent == "DRILL_DOWN_ANALYSIS":
@@ -203,36 +222,66 @@ class ConversationalAgent:
                 intent = "FRIENDLY_CONVERSATION"
             return DefaultIntentResult()
 
-    async def _handle_data_query(self, user_query: str, intent_result: Any) -> Dict[str, Any]:
+    async def _map_query_with_dspy(self, user_query: str, today_iso: str = None) -> Dict[str, Any]:
+        """Map natural language query to Looker JSON using new DSPy pipeline."""
+        try:
+            if not all([self.schema_json, self.nl_dictionary]):
+                logger.error("Schema or NL dictionary not loaded")
+                return {"clarification_request": "I'm still loading the data schema. Please try again in a moment."}
+
+            # Get current date for relative date calculations
+            if today_iso is None:
+                from datetime import datetime
+                today_iso = datetime.now().strftime("%Y-%m-%d")
+
+            logger.info(f"Mapping query with DSPy: {user_query}")
+
+            # Step 1: Map NL query to Looker JSON
+            looker_query_json = self.nl_mapper.forward(
+                query=user_query,
+                today_iso=today_iso,
+                schema_json=self.schema_json,
+                dictionary_yaml=self.nl_dictionary
+            )
+
+            logger.info(f"Generated Looker query: {looker_query_json}")
+
+            # Step 2: Validate the query against schema
+            validated_query_json = self.query_validator.forward(
+                looker_query=looker_query_json,
+                schema_json=self.schema_json
+            )
+
+            logger.info(f"Validated query: {validated_query_json}")
+
+            # Parse the result
+            try:
+                validated_query = json.loads(validated_query_json)
+                return validated_query
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse validated query JSON: {e}")
+                return {"clarification_request": "I had trouble understanding your request. Could you rephrase it?"}
+
+        except Exception as e:
+            logger.error(f"Error in DSPy mapping pipeline: {e}")
+            return {"clarification_request": "I encountered an error processing your query. Please try rephrasing your question."}
+
+    async def _handle_data_query(self, user_query: str, intent_result: Any, today_iso: str = None) -> Dict[str, Any]:
         """Handle data gathering queries from Looker."""
         try:
-            # Step 1: Try to match with predefined recipes
-            recipe_result = await self._curate_query(user_query)
-            
-            # Step 2: Build Looker query
-            if recipe_result.recipe_name != "none":
-                # Use recipe-based query
-                query_config = self._build_query_from_recipe(
-                    recipe_result.recipe_name,
-                    json.loads(recipe_result.extracted_parameters_json)
-                )
-            else:
-                # Build query from intent
-                query_config = self.query_builder.build_query_from_intent(
-                    user_query, {}
-                ) if self.query_builder else self._get_default_query()
+            # Step 1: Use new DSPy NL→Looker mapping pipeline
+            query_config = await self._map_query_with_dspy(user_query, today_iso)
 
             # Check if clarification is needed
-            if query_config.get("error") == "clarification_needed":
+            if query_config.get("clarification_request"):
                 return {
-                    "message": query_config.get("message"),
+                    "message": query_config.get("clarification_request"),
                     "status": "clarification_needed",
                     "intent": "data_query"
                 }
 
-            # Step 3: Execute Looker query
-            import os
-            query_timezone = os.getenv("LOOKER_QUERY_TIMEZONE", "UTC")
+            # Step 2: Execute Looker query (with America/New_York timezone)
+            query_timezone = "America/New_York"  # Fixed timezone as per requirements
             looker_data = await self.looker_service.run_inline_query(query_config, query_timezone)
 
             # Format result to match expected structure
@@ -243,7 +292,7 @@ class ConversationalAgent:
                 "row_count": len(looker_data)
             }
             
-            # Step 4: Synthesize response
+            # Step 3: Synthesize response
             response_text = await self._synthesize_response(
                 raw_output=json.dumps(looker_result),
                 user_query=user_query
