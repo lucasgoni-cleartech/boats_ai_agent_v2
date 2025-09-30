@@ -21,13 +21,14 @@ class NL2LookerModule(dspy.Module):
     1. Parse the natural language query for business intent
     2. Map synonyms using the NL dictionary
     3. Identify relevant fields from the schema
-    4. Handle date filters with absolute date ranges (YYYY-MM-DD to YYYY-MM-DD)
-    5. Generate valid Looker query JSON
+    4. Extract time intent WITHOUT computing absolute dates
+    5. Generate valid Looker query JSON with structured time_intent
 
     Follows the JSON schema requirements:
     - model: "bg", explore: "consumer_sessions", view: "consumer_sessions"
     - fields: array of valid schema fields
-    - filters: ABSOLUTE date filters in "YYYY-MM-DD to YYYY-MM-DD" format
+    - filters: ONLY categorical filters (NO date strings)
+    - time_intent: structured timeframe description (NO absolute dates)
     - sorts: field sorting with desc/asc
     - limit: row limit (default 100)
     - top_n: for Top/Bottom-N queries
@@ -36,32 +37,44 @@ class NL2LookerModule(dspy.Module):
 
     def __init__(self):
         super().__init__()
-        # Create a custom ChainOfThought with enhanced prompt for absolute dates
-        self.mapper = self._create_absolute_date_mapper()
+        # Create a custom ChainOfThought with time_intent prompt
+        self.mapper = self._create_time_intent_mapper()
 
-    def _create_absolute_date_mapper(self):
-        """Create a ChainOfThought mapper with custom prompt for absolute date handling."""
+    def _create_time_intent_mapper(self):
+        """Create a ChainOfThought mapper with time_intent contract."""
         mapper = dspy.ChainOfThought(NL2LookerSignature)
 
-        # Override the signature with enhanced instructions
+        # Override the signature with time_intent instructions
         mapper.signature = NL2LookerSignature.with_instructions(
             """You are a precise NL-to-Looker JSON mapper. Convert natural language queries to valid Looker JSON.
 
 CRITICAL REQUIREMENTS:
 1. ALWAYS return valid JSON only - no prose, explanations, or markdown
 2. ALWAYS set: "model": "bg", "explore": "consumer_sessions", "view": "consumer_sessions"
-3. ALWAYS include "consumer_sessions.visit_day_date" filter with ABSOLUTE date ranges in "YYYY-MM-DD to YYYY-MM-DD" format
-4. Use today_iso and America/New_York timezone to compute all relative dates to absolute ranges
+3. DO NOT compute or emit date strings in filters
+4. DO NOT include date filters in the "filters" object
+5. Use "time_intent" to describe timeframes structurally (NO absolute dates)
 
-DATE CONVERSION RULES (today_iso as reference):
-- "last 7 days" → 7-day window ending today_iso: "2025-09-22 to 2025-09-29"
-- "yesterday" → single day: "2025-09-28 to 2025-09-28"
-- "this quarter" / "QTD" → first day of current quarter to today_iso
-- "previous month" → complete prior month: "2025-08-01 to 2025-08-31"
-- "this month" / "MTD" → first day of current month to today_iso
-- Single date "2025-09-15" → "2025-09-15 to 2025-09-15"
-- If no timeframe mentioned → default: last 30 days absolute
-- Ambiguous dates like "03/04" → return {"clarification_request": "Please specify the date format (MM/DD or DD/MM)"}
+FILTERS:
+- Include ONLY categorical filters (country, region, device, portal, browser, etc.)
+- Example: {"consumer_sessions.portal": "web", "consumer_sessions.country": "US"}
+- NEVER include date/time fields in filters
+
+TIME_INTENT STRUCTURE:
+Provide a separate "time_intent" object with one of these presets:
+
+1. Last N days: {"preset": "last_n_days", "n": 7, "field": "consumer_sessions.visit_day_date"}
+2. Yesterday: {"preset": "yesterday", "field": "consumer_sessions.visit_day_date"}
+3. Today: {"preset": "today", "field": "consumer_sessions.visit_day_date"}
+4. MTD/QTD/YTD: {"preset": "mtd", "field": "consumer_sessions.visit_day_date"}
+   (also: "qtd", "ytd", "prev_month", "prev_quarter", "prev_year")
+5. Absolute range: {"preset": "absolute", "start": "YYYY-MM-DD", "end": "YYYY-MM-DD", "field": "consumer_sessions.visit_day_date"}
+
+DEFAULT: If no timeframe mentioned → {"preset": "last_n_days", "n": 30, "field": "consumer_sessions.visit_day_date"}
+
+AMBIGUOUS DATES:
+- If user provides ambiguous date like "03/04" that cannot be disambiguated, return ONLY:
+  {"clarification_request": "Do you mean 2025-04-03 or 2025-03-04? Please specify the date in YYYY-MM-DD."}
 
 FIELD MAPPING:
 - Use NL dictionary for synonym matching
@@ -74,11 +87,17 @@ JSON STRUCTURE:
   "explore": "consumer_sessions",
   "view": "consumer_sessions",
   "fields": ["consumer_sessions.field1", "consumer_sessions.field2"],
-  "filters": {"consumer_sessions.visit_day_date": "YYYY-MM-DD to YYYY-MM-DD"},
+  "pivots": ["consumer_sessions.field1"],
+  "filters": {"consumer_sessions.portal": "web"},
   "sorts": ["consumer_sessions.field1 desc"],
   "limit": 100,
-  "top_n": 10
+  "top_n": 10,
+  "time_intent": {"preset": "last_n_days", "n": 7, "field": "consumer_sessions.visit_day_date"}
 }
+
+PIVOTS:
+- Optional: maximum 1 field in "pivots" array
+- If used, the pivot field MUST also be in "fields" array
 
 For clarification: {"clarification_request": "Clear question about what needs clarification"}
 """
@@ -88,18 +107,18 @@ For clarification: {"clarification_request": "Clear question about what needs cl
 
     def forward(self, query: str, today_iso: str, schema_json: str, dictionary_yaml: str) -> str:
         """
-        Convert natural language query to Looker JSON.
+        Convert natural language query to Looker JSON with time_intent.
 
         Args:
             query: Natural language business question
-            today_iso: Current date in YYYY-MM-DD format
+            today_iso: Current date in YYYY-MM-DD format (for LLM context only)
             schema_json: Looker explore schema as JSON string
             dictionary_yaml: NL dictionary YAML text
 
         Returns:
-            Valid Looker query JSON string with absolute date ranges
+            Valid Looker query JSON string with time_intent (NO date strings in filters)
         """
-        # Enhanced context for LLM with timezone and date handling instructions
+        # Pass today_iso and timezone as context (LLM will NOT compute dates)
         enhanced_schema = schema_json + f"\n\n// CONTEXT: today_iso={today_iso}, timezone=America/New_York"
         enhanced_dictionary = dictionary_yaml + f"\n\n# CONTEXT: today_iso={today_iso}, timezone=America/New_York"
 
@@ -112,7 +131,7 @@ For clarification: {"clarification_request": "Clear question about what needs cl
 
         looker_query_str = result.looker_query
 
-        # Post-process to ensure "view" field is present and log absolute dates
+        # Post-process to ensure "view" field is present
         try:
             query_json = json.loads(looker_query_str)
 
@@ -122,13 +141,6 @@ For clarification: {"clarification_request": "Clear question about what needs cl
                 if "view" not in query_json:
                     query_json["view"] = "consumer_sessions"
                     logger.info("NL2LookerModule: auto-added 'view' field = %s", query_json["view"])
-
-                # Log the absolute date filter if present
-                if "filters" in query_json and "consumer_sessions.visit_day_date" in query_json["filters"]:
-                    date_filter = query_json["filters"]["consumer_sessions.visit_day_date"]
-                    logger.info("NL2LookerModule: absolute date filter -> %s", date_filter)
-                else:
-                    logger.warning("NL2LookerModule: Missing required absolute date filter")
 
                 # Return the updated JSON
                 looker_query_str = json.dumps(query_json)

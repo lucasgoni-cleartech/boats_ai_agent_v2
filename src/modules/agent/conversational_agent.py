@@ -247,9 +247,11 @@ class ConversationalAgent:
             logger.info(f"Generated Looker query: {looker_query_json}")
 
             # Step 2: Validate the query against schema
+            logger.info("Agent: passing today_iso to validator = %s (tz=America/New_York)", today_iso)
             validated_query_json = self.query_validator.forward(
                 looker_query=looker_query_json,
-                schema_json=self.schema_json
+                schema_json=self.schema_json,
+                today_iso=today_iso
             )
 
             logger.info(f"Validated query: {validated_query_json}")
